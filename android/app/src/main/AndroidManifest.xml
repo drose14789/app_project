@@ -1,0 +1,170 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ================================================= -->
+    <!-- 인터넷 사용 -->
+    <!-- FastAPI 통신 / 카카오 로그인 -->
+    <!-- ================================================= -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+
+    <!-- ================================================= -->
+    <!-- 위치 권한 -->
+    <!-- 현재 위치 및 Geofence 사용 -->
+    <!-- ================================================= -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- 앱이 백그라운드일 때도 Geofence 감지 -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+
+    <!-- ================================================= -->
+    <!-- 알림 권한 -->
+    <!-- Android 13 이상 -->
+    <!-- ================================================= -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+
+    <!-- ================================================= -->
+    <!-- Geofence 재부팅 복구 -->
+    <!-- ================================================= -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+
+    <!-- ================================================= -->
+    <!-- Geofence 백그라운드 작업 -->
+    <!-- ================================================= -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+
+    <application
+        android:label="할인꿀팁"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+
+
+        <!-- ================================================= -->
+        <!-- Flutter 메인 화면 -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- Flutter 화면이 로딩되는 동안 사용할 테마 -->
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+
+            <!-- 앱 실행 아이콘 -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+
+        <!-- ================================================= -->
+        <!-- 카카오 로그인 -->
+        <!-- ================================================= -->
+        <!--
+            실제 Native App Key를 AndroidManifest.xml에
+            직접 작성하지 않음.
+
+            실제 값은 Gradle에서
+            KAKAO_NATIVE_APP_KEY 변수로 전달할 예정.
+        -->
+        <activity
+            android:name="com.kakao.sdk.flutter.auth.AuthCodeHandlerActivity"
+            android:exported="true">
+
+            <intent-filter android:label="flutter_web_auth">
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!--
+                    실제 로그인 Redirect URI:
+
+                    kakao실제NativeAppKey://oauth
+
+                    실제 키 대신 Gradle Placeholder 사용
+                -->
+                <data
+                    android:scheme="kakao${KAKAO_NATIVE_APP_KEY}"
+                    android:host="oauth" />
+
+            </intent-filter>
+
+        </activity>
+
+
+        <!-- ================================================= -->
+        <!-- Native Geofence -->
+        <!-- ================================================= -->
+
+        <!-- Geofence 진입 이벤트 수신 -->
+        <receiver
+            android:name="com.chunkytofustudios.native_geofence.receivers.NativeGeofenceBroadcastReceiver"
+            android:exported="true" />
+
+
+        <!--
+            휴대폰 재부팅 후
+            기존 Geofence 자동 재등록
+        -->
+        <receiver
+            android:name="com.chunkytofustudios.native_geofence.receivers.NativeGeofenceRebootBroadcastReceiver"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+
+        </receiver>
+
+
+        <!--
+            Geofence 이벤트 발생 시
+            백그라운드 작업에 사용
+        -->
+        <service
+            android:name="com.chunkytofustudios.native_geofence.NativeGeofenceForegroundService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true" />
+
+
+        <!-- ================================================= -->
+        <!-- Flutter Plugin 등록 -->
+        <!-- ================================================= -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+
+    </application>
+
+
+    <!-- ================================================= -->
+    <!-- Flutter에서 텍스트 처리 앱 검색 등에 사용하는 설정 -->
+    <!-- Flutter 기본 AndroidManifest 설정 -->
+    <!-- ================================================= -->
+    <queries>
+
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
+        </intent>
+
+    </queries>
+
+</manifest>
